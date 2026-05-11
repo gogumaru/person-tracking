@@ -1,0 +1,14 @@
+tracker_type: botsort
+track_high_thresh: 0.5 #0.25
+track_low_thresh: 0.1
+new_track_thresh: 0.5 #0.25
+track_buffer: 30 #60       # naikkan dari 30 → 60 frame, biar track hidup lebih lama saat occlusion
+match_thresh: 0.8
+fuse_score: True
+
+gmc_method: sparseOptFlow
+
+proximity_thresh: 0.5
+appearance_thresh: 0.25  # turunkan dari 0.8 → lebih toleran saat Re-ID setelah occlusion
+with_reid: True
+model: auto

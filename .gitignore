@@ -1,0 +1,37 @@
+# System
+.DS_Store
+.claude/
+
+# Model weights — ignore semua kecuali yang spesifik
+*.pt
+!yolo26n.pt
+!best_17.pt
+
+*.onnx
+*.onnx.data
+*.mlpackage
+
+# Datasets
+cctv-2/
+person-tracking-1/
+person-tracking-2/
+SCUT-HEAD-1/
+
+# Training results
+runs/
+
+# Database
+*.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# inference videos
+inference/
+.DS_Store
+.claude/
