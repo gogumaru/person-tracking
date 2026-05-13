@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query
-from storage.database import get_zone_stats, get_crossings
+from storage.database import get_zone_stats, get_crossings, get_heatmap_stats
 
 router = APIRouter()
 
@@ -61,3 +61,7 @@ def summary():
         "zone_stats":    app_state.zone_mgr.get_stats(),
         "active_tracks": app_state.latest_tracks,
     }
+
+@router.get("/heatmap")
+def get_heatmap():
+    return get_heatmap_stats()

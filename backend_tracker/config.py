@@ -27,6 +27,7 @@ REID_MAX_GALLERY       = 10    # max embedding tersimpan per orang
 # Koordinat zone disimpan sebagai normalized (0.0–1.0) terhadap frame size
 # supaya tidak pecah kalau resolusi kamera berubah
 ZONE_CROSS_DIRECTION = "both"  # "in", "out", atau "both"
+ZONE_EXIT_THRESHOLD = 25
 
 # ── FastAPI / Streaming ───────────────────────────────────────────────────────
 HOST        = "0.0.0.0"

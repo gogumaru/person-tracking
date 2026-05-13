@@ -159,3 +159,22 @@ def get_zone_stats(session_id: int | None = None) -> list[dict]:
     with _conn() as conn:
         rows = conn.execute(query, params).fetchall()
         return [dict(row) for row in rows]
+    
+
+def get_heatmap_stats() -> list[dict]:
+    """Calculate visit frequency and average dwell time per zone."""
+    query = """
+        SELECT 
+            z.id AS zone_id,
+            z.name,
+            COUNT(CASE WHEN c1.event = 'enter' THEN 1 END) AS total_visits,
+            AVG(strftime('%s', c2.timestamp) - strftime('%s', c1.timestamp)) AS avg_dwell_seconds
+        FROM zones z
+        LEFT JOIN crossings c1 ON z.id = c1.zone_id AND c1.event = 'enter'
+        LEFT JOIN crossings c2 ON z.id = c2.zone_id AND c2.person_id = c1.person_id 
+            AND c2.event = 'exit' AND c2.timestamp > c1.timestamp
+        GROUP BY z.id
+    """
+    with _conn() as conn:
+        rows = conn.execute(query).fetchall()
+        return [dict(row) for row in rows]
