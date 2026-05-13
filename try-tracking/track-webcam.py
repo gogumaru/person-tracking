@@ -3,7 +3,7 @@ import random
 import time
 from ultralytics import YOLO
 
-model = YOLO("yolo12n.pt")  # pretrained COCO, class 0 = person
+model = YOLO("best_hans.pt")  
 
 # 0 = kamera default Mac (FaceTime HD)
 cap = cv2.VideoCapture(0)

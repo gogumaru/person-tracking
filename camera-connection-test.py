@@ -4,7 +4,7 @@ from onvif import ONVIFCamera
 def get_rtsp_uri():
     try:
         # Tuya/Smart Life usually uses port 8000 for ONVIF
-        mycam = ONVIFCamera('10.167.170.4', 8000, 'admin', '696969420')
+        mycam = ONVIFCamera('192.168.92.180', 8000, 'admin', '123456')
         
         # Create media service
         media = mycam.create_media_service()

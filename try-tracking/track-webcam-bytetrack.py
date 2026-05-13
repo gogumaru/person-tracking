@@ -9,7 +9,8 @@ from ultralytics import YOLO
 from boxmot.reid.core.reid import ReID
 
 # YOLO + ByteTrack untuk tracking frame-to-frame
-# model = YOLO("yolo26n.pt")
+# model = Y
+# OLO("yolo26n.pt")
 model = YOLO("runs/detect/train-17-v/weights/best.pt")
 
 # CLIP sebagai Re-ID model untuk recovery setelah occlusion
