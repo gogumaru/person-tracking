@@ -40,6 +40,15 @@ async def lifespan(app: FastAPI):
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
 
+    # Check what the hardware ACTUALLY did
+    actual_w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    actual_h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    
+    print(f"--- HARDWARE SYNC CHECK ---")
+    print(f"Target: {FRAME_WIDTH}x{FRAME_HEIGHT}")
+    print(f"Actual: {actual_w}x{actual_h}")
+    print(f"----------------------------")
+
     session_id = start_session()
     print(f"Session started: {session_id}")
 

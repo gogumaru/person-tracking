@@ -128,6 +128,29 @@ def handle_click(pos: ClickPos):
     else:
         app_state.trail_mgr.clear()
         return {"status": "trail_cleared"}
+    
+
+    # backend_tracker/api/stream.py
+
+@router.post("/click-macos")
+def handle_click(pos: ClickPos):
+    import main as app_state
+
+    global _last_click_debug
+    _last_click_debug = (pos.x, pos.y)
+
+    pid = app_state.trail_mgr.hit_test(
+        pos.x, pos.y, app_state.latest_tracks
+    )
+    
+    if pid is not None:
+        print(f"DEBUG: Trail activated for ID {pid} at ({pos.x}, {pos.y})") # ADD THIS
+        app_state.trail_mgr.set_active(pid)
+        return {"status": "trail_activated", "person_id": pid}
+    else:
+        print(f"DEBUG: No person found at ({pos.x}, {pos.y}), clearing trail") # ADD THIS
+        app_state.trail_mgr.clear()
+        return {"status": "trail_cleared"}
 
 
 @router.delete("/trail")
@@ -150,3 +173,4 @@ def current_overlay():
         "tracks":     app_state.latest_tracks,
         "zone_stats": app_state.zone_mgr.get_stats(),
     }
+
