@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import CAMERA_SOURCE, FRAME_WIDTH, FRAME_HEIGHT
 from core.tracker import PersonTracker
 from core.zone import ZoneManager
+from core.trail import TrailManager
 from storage.database import init_db, start_session, end_session, load_all_zones, log_crossing
 from api import stream, zones, stats
 
@@ -16,6 +17,7 @@ from api import stream, zones, stats
 # ── State global (shared antar routes) ───────────────────────────────────────
 tracker    = PersonTracker()
 zone_mgr   = ZoneManager()
+trail_mgr  = TrailManager()
 session_id: int | None = None
 cap:        cv2.VideoCapture | None = None
 
@@ -87,6 +89,8 @@ async def tracking_loop():
                 person_id=ev["person_id"],
                 event=ev["event"],
             )
+
+        trail_mgr.record(tracks)
 
         latest_frame  = frame
         latest_tracks = tracks

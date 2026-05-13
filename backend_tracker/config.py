@@ -4,19 +4,19 @@ from pathlib import Path
 BASE_DIR    = Path(__file__).parent
 MODELS_DIR  = BASE_DIR / "models"
 
-YOLO_MODEL  = MODELS_DIR / "yolo26n.pt"
+YOLO_MODEL  = MODELS_DIR / "best-4.pt"
 REID_WEIGHTS = MODELS_DIR / "osnet_x0_25_msmt17.pt"
 
 DB_PATH     = BASE_DIR / "storage" / "tracker.db"
 
 # ── Camera / Video ────────────────────────────────────────────────────────────
-CAMERA_SOURCE = 0          # 0 = webcam, atau path string ke file video
+CAMERA_SOURCE = 0 #"rtsp://192.168.92.180:5543/a66abb5684c45962d887564f08346e8d/live/channel0"          # 0 = webcam, atau path string ke file video
 FRAME_WIDTH   = 1280
 FRAME_HEIGHT  = 720
 
 # ── Detection ─────────────────────────────────────────────────────────────────
-CONF_THRESHOLD = 0.45      # confidence minimum deteksi person
-TRACKER        = "botsort.yaml"
+CONF_THRESHOLD = 0.25      # confidence minimum deteksi person
+TRACKER        = str(BASE_DIR / "botsort.yaml")
 
 # ── Re-ID ─────────────────────────────────────────────────────────────────────
 REID_SIMILARITY_THRESH = 0.6   # cosine similarity minimum untuk match orang
