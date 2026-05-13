@@ -4,13 +4,13 @@ from pathlib import Path
 BASE_DIR    = Path(__file__).parent
 MODELS_DIR  = BASE_DIR / "models"
 
-YOLO_MODEL  = MODELS_DIR / "yolo26n.pt"
+YOLO_MODEL  = MODELS_DIR / "Hans-Best.pt"
 REID_WEIGHTS = MODELS_DIR / "osnet_x0_25_msmt17.pt"
 
 DB_PATH     = BASE_DIR / "storage" / "tracker.db"
 
 # ── Camera / Video ────────────────────────────────────────────────────────────
-CAMERA_SOURCE = 0          # 0 = webcam, atau path string ke file video
+CAMERA_SOURCE = "rtsp://10.167.170.4:5543/71fb644cfa5b2ddc08e0fd7c055dab90/live/channel0"        # 0 = webcam, atau path string ke file video
 FRAME_WIDTH   = 1280
 FRAME_HEIGHT  = 720
 
@@ -27,6 +27,7 @@ REID_MAX_GALLERY       = 10    # max embedding tersimpan per orang
 # Koordinat zone disimpan sebagai normalized (0.0–1.0) terhadap frame size
 # supaya tidak pecah kalau resolusi kamera berubah
 ZONE_CROSS_DIRECTION = "both"  # "in", "out", atau "both"
+ZONE_EXIT_THRESHOLD = 25
 
 # ── FastAPI / Streaming ───────────────────────────────────────────────────────
 HOST        = "0.0.0.0"

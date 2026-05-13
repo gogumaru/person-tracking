@@ -19,6 +19,10 @@ class Zone:
     # state internal — track siapa yang sedang di dalam zone
     _inside: set[int] = field(default_factory=set, repr=False)
 
+    # NEW: Track berapa frame person berada di luar (untuk hysteresis)
+    # pid -> count_outside_frames
+    _absence_counters: dict[int, int] = field(default_factory=dict, repr=False)
+
     # counter
     count_in:  int = 0
     count_out: int = 0
@@ -36,8 +40,9 @@ class ZoneManager:
     Kelola semua zone dan deteksi crossing per frame.
     """
 
-    def __init__(self):
+    def __init__(self, exit_threshold: int = 15):
         self.zones: dict[int, Zone] = {}
+        self.exit_threshold = exit_threshold
 
     # ── Zone CRUD ─────────────────────────────────────────────────────────────
 
@@ -106,45 +111,44 @@ class ZoneManager:
             }
         """
         events = []
+        current_pids = {t["person_id"] for t in tracks}
 
         for zone in self.zones.values():
-            # normalisasi titik zone sudah di 0-1, cocokkan dengan center bbox
-            # yang juga kita normalisasi
+            # 1. Update active tracks
             for track in tracks:
                 pid  = track["person_id"]
-                bbox = track["bbox"]
-
-                # center dalam koordinat normalized
-                cx_px, cy_px = self._bbox_center(bbox)
-                cx = cx_px / frame_w
-                cy = cy_px / frame_h
+                cx_px, cy_px = self._bbox_center(track["bbox"])
+                cx, cy = cx_px / frame_w, cy_px / frame_h
 
                 is_inside = self._point_in_polygon(cx, cy, zone.points)
                 was_inside = pid in zone._inside
 
-                if is_inside and not was_inside:
-                    # orang baru masuk zone
-                    zone._inside.add(pid)
-                    zone.count_in += 1
-                    if zone.direction in ("in", "both"):
-                        events.append({
-                            "zone_id":   zone.zone_id,
-                            "zone_name": zone.name,
-                            "person_id": pid,
-                            "event":     "enter",
-                        })
-
+                if is_inside:
+                    # Reset absence counter if they are seen inside
+                    zone._absence_counters[pid] = 0
+                    
+                    if not was_inside:
+                        # Confirm Entry
+                        zone._inside.add(pid)
+                        zone.count_in += 1
+                        if zone.direction in ("in", "both"):
+                            events.append({"zone_id": zone.zone_id, "zone_name": zone.name, "person_id": pid, "event": "enter"})
+                
                 elif not is_inside and was_inside:
-                    # orang keluar zone
-                    zone._inside.discard(pid)
-                    zone.count_out += 1
-                    if zone.direction in ("out", "both"):
-                        events.append({
-                            "zone_id":   zone.zone_id,
-                            "zone_name": zone.name,
-                            "person_id": pid,
-                            "event":     "exit",
-                        })
+                    # Person is outside but was inside: increment absence counter
+                    zone._absence_counters[pid] = zone._absence_counters.get(pid, 0) + 1
+                    
+                    # Only confirm Exit if threshold is reached
+                    if zone._absence_counters[pid] >= self.exit_threshold:
+                        self._trigger_exit(zone, pid, events)
+
+            # 2. Handle missing tracks (people who disappeared/blinked)
+            # Find people in _inside set who are NOT in current tracks
+            missing_pids = zone._inside - current_pids
+            for pid in missing_pids:
+                zone._absence_counters[pid] = zone._absence_counters.get(pid, 0) + 1
+                if zone._absence_counters[pid] >= self.exit_threshold:
+                    self._trigger_exit(zone, pid, events)
 
         return events
 
@@ -168,3 +172,12 @@ class ZoneManager:
             z.count_in  = 0
             z.count_out = 0
             z._inside.clear()
+
+    def _trigger_exit(self, zone: Zone, pid: int, events: list):
+        """Helper to cleanup state and log exit."""
+        if pid in zone._inside:
+            zone._inside.discard(pid)
+            zone._absence_counters.pop(pid, None)
+            zone.count_out += 1
+            if zone.direction in ("out", "both"):
+                events.append({"zone_id": zone.zone_id, "zone_name": zone.name, "person_id": pid, "event": "exit"})
